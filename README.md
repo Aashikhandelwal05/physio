@@ -1,50 +1,68 @@
-# Physio Prescription Manager
+# 🏥 Balaji Neurophysiotherapy Clinic & Rehabilitation Center
 
-A simple web application for managing physiotherapy patients and their prescriptions.
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org)
+[![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org)
 
-## Features
+A professional management system for physiotherapy clinics to track patient assessments, treatments, and progress.
 
-- **Patient Management**: Create and search patients by name or phone
-- **Prescription Management**: Add, edit, and delete prescriptions for each patient
-- **Visit History**: Track all visits and prescriptions for each patient
-- **Simple Interface**: Clean, easy-to-use web interface
+---
 
-## Quick Start
+## ✨ Key Features
 
-### Option 1: Windows (Easy)
-1. Double-click `start.bat`
-2. Open your browser and go to http://127.0.0.1:8000
+- **👤 Patient Management**: Comprehensive profiles with quick search and history.
+- **📝 Clinical Assessments**: Detailed initial assessments covering history, pain, physical exam, and goals.
+- **🔄 Reassessments**: Dedicated progress tracking to monitor patient recovery over time.
+- **📱 WhatsApp Integration**: Generate and share professional assessment reports directly via WhatsApp.
+- **🛡️ Production Ready**: Configured for secure deployment on platforms like Railway or Render.
 
-### Option 2: Manual Setup
-1. Install dependencies:
+---
+
+## 🚀 Quick Start
+
+### For Windows Users
+1. **Launch**: Double-click `start.bat`.
+2. **Access**: Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
+
+### Manual Setup (Developers)
+1. **Clone & Enter**:
+   ```bash
+   git clone https://github.com/Aashikhandelwal05/physio.git
+   cd physio
    ```
+2. **Install**:
+   ```bash
    pip install -r requirements.txt
    ```
-
-2. Run the application:
-   ```
+3. **Run**:
+   ```bash
    python run.py
    ```
 
-3. Open your browser and go to http://127.0.0.1:8000
+---
 
-## Usage
+## 📂 Project Structure
 
-1. **Search for a Patient**: Enter name or phone number on the home page
-2. **Create New Patient**: If patient not found, click "Create New Patient"
-3. **Add Prescription**: From patient detail page, click "Add New Prescription"
-4. **Edit/Delete**: Use the buttons on each prescription to modify or remove
+- `app.py`: Core FastAPI logic & web routes.
+- `models.py`: Database schema (Patients, Assessments, Reassessments).
+- `whatsapp.py`: Report generation for WhatsApp sharing.
+- `database.py`: Database connection management.
+- `templates/`: Modern, responsive HTML templates.
 
-## Database
+---
 
-The application uses SQLite database (`physio.db`) which will be created automatically in the project folder.
+## ☁️ Deployment
 
-## Files Structure
+This project is optimized for **Railway** (using SQLite with Persistent Volumes) or **Render** (using external Postgres).
 
-- `app.py` - Main FastAPI application
-- `models.py` - Database models (Patient, Prescription)
-- `database.py` - Database configuration
-- `templates/` - HTML templates
-- `requirements.txt` - Python dependencies
-- `run.py` - Application startup script
-- `start.bat` - Windows batch file for easy startup
+- **Database**: Supports `DATABASE_URL` environment variable.
+- **Security**: Requires `SECRET_KEY` in production environments.
+
+---
+
+## 🛠️ Built With
+
+- **Backend**: FastAPI
+- **Database**: SQLAlchemy (SQLite for local)
+- **Templates**: Jinja2 & Vanilla CSS
+- **Server**: Uvicorn / Gunicorn
