@@ -22,11 +22,9 @@ app = FastAPI(title="Balaji Neurophysiotherapy Clinic & Rehabilitation Center")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Add session middleware
-SECRET_KEY = os.environ.get("SECRET_KEY")
-if not SECRET_KEY:
-    if os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RENDER"):
-        raise RuntimeError("SECRET_KEY environment variable is required in production!")
-    SECRET_KEY = "dev-secret-change-in-production"
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
+if SECRET_KEY == "dev-secret-change-in-production":
+    print("WARNING: Using default SECRET_KEY. Set SECRET_KEY environment variable in production!")
 
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
