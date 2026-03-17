@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Search — Balaji Neurophysiotherapy{% endblock %}
+
+{% block content %}
+<div style="max-width: 580px; margin: 1.5rem auto;">
+
+    <!-- Hero -->
+    <div class="text-center mb-lg">
+        <h1
+            style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); margin-bottom: 0.25rem;">
+            Patient Search
+        </h1>
+        <p class="text-muted text-sm">Search by name or phone number</p>
+    </div>
+
+    {% if request.query_params.get('deleted') %}
+    <div class="alert alert-info">
+        ✓ Patient deleted successfully.
+        <button class="alert-close">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- Search Box -->
+    <div class="card mb-md" style="border: none; box-shadow: var(--shadow-md);">
+        <div class="card-body" style="padding: 1.25rem;">
+            <div style="position: relative;">
+                <span
+                    style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; pointer-events: none; opacity: 0.4;"></span>
+                <input type="text" class="form-input form-input-lg" id="search-input" placeholder="Search patients..."
+                    value="{{ search_query or '' }}" autocomplete="off" style="padding-left: 2.5rem;" autofocus>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results container -->
+    <div id="results">
+        {% if no_results %}
+        <div class="text-center" style="padding: 1.5rem;">
+            <p class="text-muted mb-sm">No patient found matching "<strong>{{ search_query }}</strong>"</p>
+            <a href="/patient/new?name={{ search_query }}" class="btn btn-success btn-lg btn-block mt-sm">
+                ＋ Create "{{ search_query }}" as New Patient
+            </a>
+        </div>
+        {% elif patients %}
+        <div class="flex items-center justify-between mb-sm" style="padding: 0 0.25rem;">
+            <span class="text-sm text-muted fw-600">
+                {% if is_search %}Results{% else %}Recent Patients{% endif %}
+            </span>
+            <span class="stat-pill">{{ patients|length }}</span>
+        </div>
+        {% for patient in patients %}
+        <a href="/patient/{{ patient.id }}" class="patient-item">
+            <div class="avatar">{{ patient.name[0] | upper }}</div>
+            <div class="info">
+                <div class="name">{{ patient.name }}</div>
+                <div class="meta">
+                    {% if patient.age %}Age {{ patient.age }}{% endif %}
+                    {% if patient.gender %} · {{ patient.gender }}{% endif %}
+                </div>
+            </div>
+            <div class="phone-badge">{{ patient.phone }}</div>
+        </a>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Add New Patient -->
+    <div class="text-center mt-lg">
+        <a href="/patient/new" class="btn btn-ghost">＋ Add New Patient</a>
+    </div>
+
+</div>
+
+<script>
+    (function () {
+        const input = document.getElementById('search-input');
+        const results = document.getElementById('results');
+        let timeout;
+
+        function renderPatients(patients, query) {
+            if (patients.length === 0 && query) {
+                const encoded = query.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+                return `<div class="text-center" style="padding:1.5rem">
+                <p class="text-muted mb-sm">No patient found matching "<strong>${encoded}</strong>"</p>
+                <a href="/patient/new?name=${encodeURIComponent(query)}" class="btn btn-success btn-lg btn-block mt-sm">＋ Create "${encoded}" as New Patient</a>
+            </div>`;
+            }
+            if (patients.length === 0) return '';
+
+            const label = query ? 'Results' : 'Recent Patients';
+            let html = `<div class="flex items-center justify-between mb-sm" style="padding:0 0.25rem">
+            <span class="text-sm text-muted fw-600">${label}</span>
+            <span class="stat-pill">${patients.length}</span>
+        </div>`;
+
+            patients.forEach(p => {
+                const initial = p.name.charAt(0).toUpperCase();
+                const meta = [p.age ? `Age ${p.age}` : '', p.gender].filter(Boolean).join(' · ');
+                html += `<a href="/patient/${p.id}" class="patient-item">
+                <div class="avatar">${initial}</div>
+                <div class="info">
+                    <div class="name">${p.name}</div>
+                    <div class="meta">${meta}</div>
+                </div>
+                <div class="phone-badge">${p.phone}</div>
+            </a>`;
+            });
+            return html;
+        }
+
+        input.addEventListener('input', function () {
+            clearTimeout(timeout);
+            const q = this.value.trim();
+            timeout = setTimeout(async () => {
+                if (!q) {
+                    // Reload page to show recent
+                    const resp = await fetch(`/api/search?q=`);
+                    // Just reload for now to show recent patients
+                    window.location.href = '/';
+                    return;
+                }
+                try {
+                    const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+                    const data = await resp.json();
+                    results.innerHTML = renderPatients(data, q);
+                } catch (e) {
+                    // Fallback: reload with query
+                    window.location.href = `/?q=${encodeURIComponent(q)}`;
+                }
+            }, 250);
+        });
+    })();
+</script>
+{% endblock %}

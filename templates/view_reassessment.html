@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Reassessment — {{ patient.name }}{% endblock %}
+
+{% macro show_field(label, value) %}
+{% if value %}<div class="detail-row"><span class="detail-label">{{ label }}</span><span class="detail-value">{{ value
+        }}</span></div>{% endif %}
+{% endmacro %}
+
+{% macro show_radio(label, value) %}
+{% if value %}<div class="detail-row"><span class="detail-label">{{ label }}</span><span class="badge-status">{{ value |
+        replace('_', ' ') | title }}</span></div>{% endif %}
+{% endmacro %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.4rem; font-weight: 700;">Reassessment Details</h2>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                {{ patient.name }} &bull; {{ r.reassessment_date.strftime('%d %b %Y, %I:%M %p') }}
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="/reassessment/{{ r.id }}/whatsapp" target="_blank"
+                class="btn-success-modern btn-sm-modern"
+                style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);">Send to WhatsApp</a>
+            <a href="/assessment/{{ a.id }}" class="btn-secondary-modern">← Back to Assessment</a>
+        </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Progress Towards
+            Goals</div>
+        <div class="card-body-modern view-section">
+            {{ show_radio("Short-term Achieved", r.short_term_achieved) }}
+            {{ show_field("Details", r.short_term_explain) }}
+            {{ show_radio("Long-term Progress", r.long_term_progress) }}
+            {{ show_field("Details", r.long_term_explain) }}
+        </div>
+    </div>
+
+    <!-- Patient Feedback -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Patient Feedback
+        </div>
+        <div class="card-body-modern view-section">
+            {% if r.pain_current is not none %}
+            <div class="detail-row">
+                <span class="detail-label">Current Pain</span>
+                <span class="detail-value">
+                    <span
+                        class="pain-badge {% if r.pain_current <= 3 %}pain-low{% elif r.pain_current <= 6 %}pain-mid{% else %}pain-high{% endif %}">
+                        {{ r.pain_current }} / 10
+                    </span>
+                </span>
+            </div>
+            {% endif %}
+            {{ show_radio("Functionality", r.functionality) }}
+            {{ show_field("Details", r.functionality_details) }}
+        </div>
+    </div>
+
+    <!-- Physical Exam -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Re-evaluated
+            Physical Examination</div>
+        <div class="card-body-modern view-section">
+            {{ show_radio("Posture / Gait", r.posture_gait) }}
+            {{ show_field("ROM — Upper Limb", r.rom_upper) }}
+            {{ show_field("ROM — Lower Limb", r.rom_lower) }}
+            {{ show_field("Strength — Upper Limb", r.strength_upper) }}
+            {{ show_field("Strength — Lower Limb", r.strength_lower) }}
+            {{ show_radio("Neurological Status", r.neuro_status) }}
+            {{ show_field("Sensory", r.neuro_sensory) }}
+            {{ show_field("Reflexes", r.neuro_reflexes) }}
+            {{ show_field("Coordination", r.neuro_coordination) }}
+            {{ show_field("Pain Location", r.pain_location) }}
+            {% if r.pain_intensity is not none %}
+            <div class="detail-row">
+                <span class="detail-label">Pain Intensity</span>
+                <span class="detail-value">
+                    <span
+                        class="pain-badge {% if r.pain_intensity <= 3 %}pain-low{% elif r.pain_intensity <= 6 %}pain-mid{% else %}pain-high{% endif %}">
+                        {{ r.pain_intensity }} / 10
+                    </span>
+                </span>
+            </div>
+            {% endif %}
+            {{ show_field("Other Findings", r.other_findings) }}
+        </div>
+    </div>
+
+    <!-- Revised Plan -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Revised
+            Treatment Plan</div>
+        <div class="card-body-modern view-section">
+            {{ show_radio("Continue Current Plan", r.continue_plan) }}
+            {{ show_radio("Modify Treatment", r.modify_treatment) }}
+            {{ show_field("Frequency Changes", r.frequency_changes) }}
+            {{ show_field("Modality Changes", r.modality_changes) }}
+            {{ show_radio("Education Revisited", r.education_revisited) }}
+        </div>
+    </div>
+
+    <!-- Next Follow-up -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Next Follow-up
+        </div>
+        <div class="card-body-modern view-section">
+            {{ show_field("Next Visit", r.next_visit) }}
+            {{ show_field("Additional Assessments", r.additional_assessments) }}
+            {{ show_field("Physiotherapist", r.physiotherapist_name) }}
+        </div>
+    </div>
+
+    <!-- Delete -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <form method="post" action="/reassessment/{{ r.id }}/delete"
+            onsubmit="return confirm('Delete this reassessment?')">
+            <button type="submit" class="btn-outline-modern btn-outline-danger btn-sm-modern">🗑 Delete This
+                Reassessment</button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

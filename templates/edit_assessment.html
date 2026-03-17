@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+{% block title %}Edit Assessment — {{ patient.name }}{% endblock %}
+
+{% macro is_checked(csv_field, value) %}{% if value in split_csv(csv_field) %}checked{% endif %}{% endmacro %}
+{% macro is_selected(field, value) %}{% if field == value %}checked{% endif %}{% endmacro %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.4rem; font-weight: 700;">Edit Assessment</h2>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                {{ patient.name }} &bull; {{ a.assessment_date.strftime('%d %b %Y') }}
+            </div>
+        </div>
+        <a href="/assessment/{{ a.id }}" class="btn-secondary-modern">← Back</a>
+    </div>
+
+    <form method="post" action="/assessment/{{ a.id }}/edit">
+
+        <!-- ① Referral Information -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">① Referral Information</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Name of Referring Doctor</label>
+                    <input type="text" class="form-input" name="referring_doctor"
+                        value="{{ a.referring_doctor or '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">History of Patient</label>
+                    <textarea class="form-input" name="history" rows="3">{{ a.history or '' }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Reason for Physiotherapy Referral</label>
+                    <div class="checkbox-grid">
+                        <label class="check-item"><input type="checkbox" name="referral_reasons" value="pain" {{
+                                is_checked(a.referral_reasons, 'pain' ) }}> Pain</label>
+                        <label class="check-item"><input type="checkbox" name="referral_reasons"
+                                value="loss_of_function" {{ is_checked(a.referral_reasons, 'loss_of_function' ) }}> Loss
+                            of Function</label>
+                        <label class="check-item"><input type="checkbox" name="referral_reasons"
+                                value="rehab_post_surgery" {{ is_checked(a.referral_reasons, 'rehab_post_surgery' ) }}>
+                            Rehabilitation Post Surgery</label>
+                        <label class="check-item"><input type="checkbox" name="referral_reasons" value="neurological" {{
+                                is_checked(a.referral_reasons, 'neurological' ) }}> Neurological Condition</label>
+                        <label class="check-item"><input type="checkbox" name="referral_reasons" value="musculoskeletal"
+                                {{ is_checked(a.referral_reasons, 'musculoskeletal' ) }}> Musculoskeletal Issues</label>
+                        <label class="check-item"><input type="checkbox" name="referral_reasons"
+                                value="respiratory_rehab" {{ is_checked(a.referral_reasons, 'respiratory_rehab' ) }}>
+                            Respiratory Rehabilitation</label>
+                    </div>
+                    <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <label class="check-item" style="flex-shrink: 0;"><input type="checkbox" name="referral_reasons"
+                                value="other" {{ is_checked(a.referral_reasons, 'other' ) }}> Other:</label>
+                        <input type="text" class="form-input" name="referral_other" value="{{ a.referral_other or '' }}"
+                            style="flex: 1;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Chief Complaint</label>
+                    <textarea class="form-input" name="chief_complaint"
+                        rows="2">{{ a.chief_complaint or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ② Pain Assessment -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">② Pain Assessment</div>
+            <div class="card-body-modern">
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Location</label>
+                        <input type="text" class="form-input" name="pain_location" value="{{ a.pain_location or '' }}">
+                    </div>
+                    <div class="form-group" style="width: 120px;">
+                        <label class="form-label-modern">Intensity (0–10)</label>
+                        <input type="number" class="form-input" name="pain_intensity" min="0" max="10"
+                            value="{{ a.pain_intensity if a.pain_intensity is not none else '' }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Quality</label>
+                    <input type="text" class="form-input" name="pain_quality" value="{{ a.pain_quality or '' }}">
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Aggravating Factors</label>
+                        <input type="text" class="form-input" name="pain_aggravating"
+                            value="{{ a.pain_aggravating or '' }}">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Relieving Factors</label>
+                        <input type="text" class="form-input" name="pain_relieving"
+                            value="{{ a.pain_relieving or '' }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Duration & Frequency</label>
+                        <input type="text" class="form-input" name="pain_duration" value="{{ a.pain_duration or '' }}">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Previous Treatment(s)</label>
+                        <input type="text" class="form-input" name="previous_treatments"
+                            value="{{ a.previous_treatments or '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ③ Medical History -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">③ Medical History &amp; Co-Morbidities</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <div class="checkbox-grid">
+                        <label class="check-item"><input type="checkbox" name="medical_conditions" value="hypertension"
+                                {{ is_checked(a.medical_conditions, 'hypertension' ) }}> Hypertension</label>
+                        <label class="check-item"><input type="checkbox" name="medical_conditions" value="diabetes" {{
+                                is_checked(a.medical_conditions, 'diabetes' ) }}> Diabetes Mellitus</label>
+                        <label class="check-item"><input type="checkbox" name="medical_conditions"
+                                value="cardiovascular" {{ is_checked(a.medical_conditions, 'cardiovascular' ) }}>
+                            Cardiovascular Issues</label>
+                        <label class="check-item"><input type="checkbox" name="medical_conditions" value="respiratory"
+                                {{ is_checked(a.medical_conditions, 'respiratory' ) }}> Respiratory Conditions</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Previous Surgeries</label>
+                    <input type="text" class="form-input" name="previous_surgeries"
+                        value="{{ a.previous_surgeries or '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Medication(s)</label>
+                    <input type="text" class="form-input" name="medications" value="{{ a.medications or '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Other Relevant Medical History</label>
+                    <textarea class="form-input" name="other_medical_history"
+                        rows="2">{{ a.other_medical_history or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ④ Functional Status -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">④ Functional Status</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Mobility</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="mobility" value="independent" {{
+                                is_selected(a.mobility, 'independent' ) }}> Independent</label>
+                        <label class="radio-item"><input type="radio" name="mobility" value="with_assistance" {{
+                                is_selected(a.mobility, 'with_assistance' ) }}> With Assistance</label>
+                        <label class="radio-item"><input type="radio" name="mobility" value="dependent" {{
+                                is_selected(a.mobility, 'dependent' ) }}> Dependent</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">ADLs</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="adls" value="independent" {{
+                                is_selected(a.adls, 'independent' ) }}> Independent</label>
+                        <label class="radio-item"><input type="radio" name="adls" value="some_assistance" {{
+                                is_selected(a.adls, 'some_assistance' ) }}> Some Assistance</label>
+                        <label class="radio-item"><input type="radio" name="adls" value="dependent" {{
+                                is_selected(a.adls, 'dependent' ) }}> Dependent</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Work / Leisure</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="work_leisure" value="sedentary" {{
+                                is_selected(a.work_leisure, 'sedentary' ) }}> Sedentary</label>
+                        <label class="radio-item"><input type="radio" name="work_leisure" value="active" {{
+                                is_selected(a.work_leisure, 'active' ) }}> Active</label>
+                        <label class="radio-item"><input type="radio" name="work_leisure" value="highly_active" {{
+                                is_selected(a.work_leisure, 'highly_active' ) }}> Highly Active</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Physical Activity Level</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="physical_activity" value="low" {{
+                                is_selected(a.physical_activity, 'low' ) }}> Low</label>
+                        <label class="radio-item"><input type="radio" name="physical_activity" value="moderate" {{
+                                is_selected(a.physical_activity, 'moderate' ) }}> Moderate</label>
+                        <label class="radio-item"><input type="radio" name="physical_activity" value="high" {{
+                                is_selected(a.physical_activity, 'high' ) }}> High</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⑤ Physical Examination -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">⑤ Physical Examination</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Posture and Gait</label>
+                    <div class="radio-group" style="margin-bottom: 0.5rem;">
+                        <label class="radio-item"><input type="radio" name="posture_gait" value="normal" {{
+                                is_selected(a.posture_gait, 'normal' ) }}> Normal</label>
+                        <label class="radio-item"><input type="radio" name="posture_gait" value="abnormal" {{
+                                is_selected(a.posture_gait, 'abnormal' ) }}> Abnormal</label>
+                    </div>
+                    <input type="text" class="form-input" name="posture_gait_details"
+                        value="{{ a.posture_gait_details or '' }}" placeholder="Specify if abnormal...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Range of Motion (ROM)</label>
+                    <div class="rom-grid">
+                        <div><label class="form-hint">Cervical Spine</label><input type="text" class="form-input"
+                                name="rom_cervical" value="{{ a.rom_cervical or '' }}"></div>
+                        <div><label class="form-hint">Lumbar Spine</label><input type="text" class="form-input"
+                                name="rom_lumbar" value="{{ a.rom_lumbar or '' }}"></div>
+                        <div><label class="form-hint">Shoulder</label><input type="text" class="form-input"
+                                name="rom_shoulder" value="{{ a.rom_shoulder or '' }}"></div>
+                        <div><label class="form-hint">Hip</label><input type="text" class="form-input" name="rom_hip"
+                                value="{{ a.rom_hip or '' }}"></div>
+                        <div><label class="form-hint">Knee</label><input type="text" class="form-input" name="rom_knee"
+                                value="{{ a.rom_knee or '' }}"></div>
+                        <div><label class="form-hint">Ankle</label><input type="text" class="form-input"
+                                name="rom_ankle" value="{{ a.rom_ankle or '' }}"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Muscle Strength (0–5)</label>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;"><label class="form-hint">Upper Limb</label><input
+                                type="text" class="form-input" name="strength_upper"
+                                value="{{ a.strength_upper or '' }}"></div>
+                        <div class="form-group" style="flex: 1;"><label class="form-hint">Lower Limb</label><input
+                                type="text" class="form-input" name="strength_lower"
+                                value="{{ a.strength_lower or '' }}"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Neurological Assessment</label>
+                    <div class="neuro-row">
+                        <div>
+                            <label class="form-hint">Sensory</label>
+                            <div class="radio-group-sm">
+                                <label class="radio-item"><input type="radio" name="neuro_sensory" value="normal" {{
+                                        is_selected(a.neuro_sensory, 'normal' ) }}> Normal</label>
+                                <label class="radio-item"><input type="radio" name="neuro_sensory" value="abnormal" {{
+                                        is_selected(a.neuro_sensory, 'abnormal' ) }}> Abnormal</label>
+                            </div>
+                            <input type="text" class="form-input" name="neuro_sensory_details"
+                                value="{{ a.neuro_sensory_details or '' }}" style="margin-top: 0.3rem;">
+                        </div>
+                        <div>
+                            <label class="form-hint">Reflexes</label>
+                            <div class="radio-group-sm">
+                                <label class="radio-item"><input type="radio" name="neuro_reflexes" value="normal" {{
+                                        is_selected(a.neuro_reflexes, 'normal' ) }}> Normal</label>
+                                <label class="radio-item"><input type="radio" name="neuro_reflexes" value="abnormal" {{
+                                        is_selected(a.neuro_reflexes, 'abnormal' ) }}> Abnormal</label>
+                            </div>
+                            <input type="text" class="form-input" name="neuro_reflexes_details"
+                                value="{{ a.neuro_reflexes_details or '' }}" style="margin-top: 0.3rem;">
+                        </div>
+                        <div>
+                            <label class="form-hint">Coordination</label>
+                            <div class="radio-group-sm">
+                                <label class="radio-item"><input type="radio" name="neuro_coordination" value="normal"
+                                        {{ is_selected(a.neuro_coordination, 'normal' ) }}> Normal</label>
+                                <label class="radio-item"><input type="radio" name="neuro_coordination" value="abnormal"
+                                        {{ is_selected(a.neuro_coordination, 'abnormal' ) }}> Abnormal</label>
+                            </div>
+                            <input type="text" class="form-input" name="neuro_coordination_details"
+                                value="{{ a.neuro_coordination_details or '' }}" style="margin-top: 0.3rem;">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Respiratory Assessment</label>
+                    <div class="radio-group" style="margin-bottom: 0.5rem;">
+                        <label class="radio-item"><input type="radio" name="respiratory" value="normal" {{
+                                is_selected(a.respiratory, 'normal' ) }}> Normal</label>
+                        <label class="radio-item"><input type="radio" name="respiratory" value="abnormal" {{
+                                is_selected(a.respiratory, 'abnormal' ) }}> Abnormal</label>
+                    </div>
+                    <input type="text" class="form-input" name="respiratory_details"
+                        value="{{ a.respiratory_details or '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Swelling / Edema</label>
+                    <div class="radio-group" style="margin-bottom: 0.5rem;">
+                        <label class="radio-item"><input type="radio" name="swelling" value="present" {{
+                                is_selected(a.swelling, 'present' ) }}> Present</label>
+                        <label class="radio-item"><input type="radio" name="swelling" value="not_present" {{
+                                is_selected(a.swelling, 'not_present' ) }}> Not Present</label>
+                    </div>
+                    <input type="text" class="form-input" name="swelling_location"
+                        value="{{ a.swelling_location or '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Special Tests</label>
+                    <textarea class="form-input" name="special_tests" rows="2">{{ a.special_tests or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⑥ Assessment Summary & Goals -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">⑥ Assessment Summary &amp; Goals</div>
+            <div class="card-body-modern">
+                <div class="form-group"><label class="form-label-modern">Diagnosis</label><textarea class="form-input"
+                        name="diagnosis" rows="2">{{ a.diagnosis or '' }}</textarea></div>
+                <div class="form-group"><label class="form-label-modern">Problem List</label><textarea
+                        class="form-input" name="problem_list" rows="2">{{ a.problem_list or '' }}</textarea></div>
+                <div class="form-group"><label class="form-label-modern">Impairments Identified</label><textarea
+                        class="form-input" name="impairments" rows="2">{{ a.impairments or '' }}</textarea></div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;"><label class="form-label-modern">Short-term
+                            Goals</label><textarea class="form-input" name="goals_short_term"
+                            rows="2">{{ a.goals_short_term or '' }}</textarea></div>
+                    <div class="form-group" style="flex: 1;"><label class="form-label-modern">Long-term
+                            Goals</label><textarea class="form-input" name="goals_long_term"
+                            rows="2">{{ a.goals_long_term or '' }}</textarea></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⑦ Treatment Plan -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">⑦ Physiotherapy Plan of Care</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Treatment Modalities</label>
+                    <div class="checkbox-grid">
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="manual_therapy" {{ is_checked(a.treatment_modalities, 'manual_therapy' ) }}>
+                            Manual Therapy</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="exercise_therapy" {{ is_checked(a.treatment_modalities, 'exercise_therapy' ) }}>
+                            Exercise Therapy</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities" value="heat_ice" {{
+                                is_checked(a.treatment_modalities, 'heat_ice' ) }}> Heat / Ice Therapy</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="electrical_stimulation" {{
+                                is_checked(a.treatment_modalities, 'electrical_stimulation' ) }}> Electrical
+                            Stimulation</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities" value="taping" {{
+                                is_checked(a.treatment_modalities, 'taping' ) }}> Taping</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="posture_education" {{ is_checked(a.treatment_modalities, 'posture_education' )
+                                }}> Posture Education</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="balance_coordination" {{
+                                is_checked(a.treatment_modalities, 'balance_coordination' ) }}> Balance &amp;
+                            Coordination</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="neuromuscular" {{ is_checked(a.treatment_modalities, 'neuromuscular' ) }}>
+                            Neuromuscular Re-education</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="gait_training" {{ is_checked(a.treatment_modalities, 'gait_training' ) }}> Gait
+                            Training</label>
+                    </div>
+                    <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <label class="check-item" style="flex-shrink: 0;"><input type="checkbox"
+                                name="treatment_modalities" value="other" {{ is_checked(a.treatment_modalities, 'other'
+                                ) }}> Other:</label>
+                        <input type="text" class="form-input" name="treatment_other"
+                            value="{{ a.treatment_other or '' }}" style="flex: 1;">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Frequency</label>
+                        <div class="radio-group">
+                            <label class="radio-item"><input type="radio" name="session_frequency" value="daily" {{
+                                    is_selected(a.session_frequency, 'daily' ) }}> Daily</label>
+                            <label class="radio-item"><input type="radio" name="session_frequency" value="2_3_per_week"
+                                    {{ is_selected(a.session_frequency, '2_3_per_week' ) }}> 2–3/week</label>
+                            <label class="radio-item"><input type="radio" name="session_frequency" value="weekly" {{
+                                    is_selected(a.session_frequency, 'weekly' ) }}> Weekly</label>
+                            <label class="radio-item"><input type="radio" name="session_frequency" value="other" {{
+                                    is_selected(a.session_frequency, 'other' ) }}> Other</label>
+                        </div>
+                        <input type="text" class="form-input" name="session_frequency_other"
+                            value="{{ a.session_frequency_other or '' }}" style="margin-top: 0.3rem;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Duration</label>
+                        <div class="radio-group">
+                            <label class="radio-item"><input type="radio" name="treatment_duration" value="1_2_weeks" {{
+                                    is_selected(a.treatment_duration, '1_2_weeks' ) }}> 1–2 weeks</label>
+                            <label class="radio-item"><input type="radio" name="treatment_duration" value="3_4_weeks" {{
+                                    is_selected(a.treatment_duration, '3_4_weeks' ) }}> 3–4 weeks</label>
+                            <label class="radio-item"><input type="radio" name="treatment_duration" value="6_weeks" {{
+                                    is_selected(a.treatment_duration, '6_weeks' ) }}> 6 weeks</label>
+                            <label class="radio-item"><input type="radio" name="treatment_duration" value="other" {{
+                                    is_selected(a.treatment_duration, 'other' ) }}> Other</label>
+                        </div>
+                        <input type="text" class="form-input" name="treatment_duration_other"
+                            value="{{ a.treatment_duration_other or '' }}" style="margin-top: 0.3rem;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Patient Education</label>
+                    <div class="radio-group" style="margin-bottom: 0.5rem;">
+                        <label class="radio-item"><input type="radio" name="patient_education" value="yes" {{
+                                is_selected(a.patient_education, 'yes' ) }}> Yes</label>
+                        <label class="radio-item"><input type="radio" name="patient_education" value="no" {{
+                                is_selected(a.patient_education, 'no' ) }}> No</label>
+                    </div>
+                    <textarea class="form-input" name="education_details"
+                        rows="2">{{ a.education_details or '' }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Physiotherapist's Name</label>
+                    <input type="text" class="form-input" name="physiotherapist_name"
+                        value="{{ a.physiotherapist_name or '' }}">
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem;">
+            <button type="submit" class="btn-primary-modern btn-lg-modern" style="flex: 1;">Save Changes</button>
+            <a href="/assessment/{{ a.id }}" class="btn-secondary-modern btn-lg-modern">Cancel</a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

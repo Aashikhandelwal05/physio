@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Edit — {{ patient.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 520px; margin: 1rem auto;">
+    <div class="card" style="border: none; box-shadow: var(--shadow-lg);">
+        <div class="section-bar">
+            Edit Patient Details
+        </div>
+        <div class="card-body" style="padding: 1.5rem;">
+            {% if error %}
+            <div class="alert alert-danger">
+                ⚠ {{ error }}
+                <button class="alert-close">&times;</button>
+            </div>
+            {% endif %}
+
+            <form method="post" action="/patient/{{ patient.id }}/edit">
+                <div class="form-group">
+                    <label class="form-label">Name <span class="required">*</span></label>
+                    <input type="text" class="form-input" name="name" value="{{ patient.name }}" required minlength="2"
+                        maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone <span class="required">*</span></label>
+                    <input type="tel" class="form-input" name="phone" value="{{ patient.phone }}" required
+                        pattern="[0-9]{10}" maxlength="10" minlength="10"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <small class="form-hint">Unique 10-digit number</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label class="form-label">Age</label>
+                        <input type="number" class="form-input" name="age" value="{{ patient.age or '' }}" min="1"
+                            max="120">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label class="form-label">Gender</label>
+                        <select class="form-input" name="gender">
+                            <option value="">— Select —</option>
+                            <option value="Male" {% if patient.gender=='Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if patient.gender=='Female' %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if patient.gender=='Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-input" name="notes" rows="3"
+                        maxlength="500">{{ patient.notes or '' }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block mb-sm">Save Changes</button>
+                <a href="/patient/{{ patient.id }}" class="btn btn-ghost btn-block">Cancel</a>
+            </form>
+
+            <hr class="divider">
+
+            <form method="post" action="/patient/{{ patient.id }}/delete"
+                onsubmit="return confirm('⚠️ Delete this patient and ALL their assessments? This cannot be undone.')">
+                <button type="submit" class="btn btn-danger-outline btn-sm btn-block">
+                    Delete Patient
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

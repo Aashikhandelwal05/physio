@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Add Reassessment — {{ patient.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.4rem; font-weight: 700;">🔄 Reassessment</h2>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                {{ patient.name }} &bull; Follow-up for assessment on {{ a.assessment_date.strftime('%d %b %Y') }}
+            </div>
+        </div>
+        <a href="/assessment/{{ a.id }}" class="btn-secondary-modern">← Back</a>
+    </div>
+
+    <form method="post" action="/assessment/{{ a.id }}/reassessment/new">
+
+        <!-- Progress Towards Goals -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Progress
+                Towards Goals</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Short-term goals achieved?</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="short_term_achieved" value="yes">
+                            Yes</label>
+                        <label class="radio-item"><input type="radio" name="short_term_achieved" value="no"> No</label>
+                    </div>
+                    <textarea class="form-input" name="short_term_explain" rows="2" placeholder="Explain..."
+                        style="margin-top: 0.3rem;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Long-term goals progress?</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="long_term_progress" value="yes"> Yes</label>
+                        <label class="radio-item"><input type="radio" name="long_term_progress" value="no"> No</label>
+                    </div>
+                    <textarea class="form-input" name="long_term_explain" rows="2" placeholder="Explain..."
+                        style="margin-top: 0.3rem;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Feedback -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Patient
+                Feedback</div>
+            <div class="card-body-modern">
+                <div class="form-row">
+                    <div class="form-group" style="width: 140px;">
+                        <label class="form-label-modern">Pain Level (0–10)</label>
+                        <input type="number" class="form-input" name="pain_current" min="0" max="10">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Functionality Improvement</label>
+                        <div class="radio-group">
+                            <label class="radio-item"><input type="radio" name="functionality" value="improved">
+                                Improved</label>
+                            <label class="radio-item"><input type="radio" name="functionality" value="no_change"> No
+                                Change</label>
+                            <label class="radio-item"><input type="radio" name="functionality" value="worsened">
+                                Worsened</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Describe improvement or worsening</label>
+                    <textarea class="form-input" name="functionality_details" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Re-evaluated Physical Exam -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Re-evaluated
+                Physical Examination</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Posture / Gait</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="posture_gait" value="improved">
+                            Improved</label>
+                        <label class="radio-item"><input type="radio" name="posture_gait" value="no_change"> No
+                            Change</label>
+                        <label class="radio-item"><input type="radio" name="posture_gait" value="worsened">
+                            Worsened</label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;"><label class="form-hint">ROM — Upper Limb</label><input
+                            type="text" class="form-input" name="rom_upper"></div>
+                    <div class="form-group" style="flex: 1;"><label class="form-hint">ROM — Lower Limb</label><input
+                            type="text" class="form-input" name="rom_lower"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;"><label class="form-hint">Strength — Upper
+                            Limb</label><input type="text" class="form-input" name="strength_upper"></div>
+                    <div class="form-group" style="flex: 1;"><label class="form-hint">Strength — Lower
+                            Limb</label><input type="text" class="form-input" name="strength_lower"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Neurological Assessment</label>
+                    <div class="radio-group" style="margin-bottom: 0.5rem;">
+                        <label class="radio-item"><input type="radio" name="neuro_status" value="improved">
+                            Improved</label>
+                        <label class="radio-item"><input type="radio" name="neuro_status" value="no_change"> No
+                            Change</label>
+                        <label class="radio-item"><input type="radio" name="neuro_status" value="worsened">
+                            Worsened</label>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;"><label class="form-hint">Sensory</label><input
+                                type="text" class="form-input" name="neuro_sensory"></div>
+                        <div class="form-group" style="flex: 1;"><label class="form-hint">Reflexes</label><input
+                                type="text" class="form-input" name="neuro_reflexes"></div>
+                        <div class="form-group" style="flex: 1;"><label class="form-hint">Coordination</label><input
+                                type="text" class="form-input" name="neuro_coordination"></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Pain Location</label>
+                        <input type="text" class="form-input" name="pain_location">
+                    </div>
+                    <div class="form-group" style="width: 120px;">
+                        <label class="form-label-modern">Intensity (0–10)</label>
+                        <input type="number" class="form-input" name="pain_intensity" min="0" max="10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Other Relevant Findings</label>
+                    <textarea class="form-input" name="other_findings" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revised Treatment Plan -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Revised
+                Treatment Plan</div>
+            <div class="card-body-modern">
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Continue current plan?</label>
+                        <div class="radio-group">
+                            <label class="radio-item"><input type="radio" name="continue_plan" value="yes"> Yes</label>
+                            <label class="radio-item"><input type="radio" name="continue_plan" value="no"> No</label>
+                        </div>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Modify treatment?</label>
+                        <div class="radio-group">
+                            <label class="radio-item"><input type="radio" name="modify_treatment" value="yes">
+                                Yes</label>
+                            <label class="radio-item"><input type="radio" name="modify_treatment" value="no"> No</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Changes in frequency</label>
+                        <input type="text" class="form-input" name="frequency_changes">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Changes in modalities</label>
+                        <input type="text" class="form-input" name="modality_changes">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Patient education revisited?</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="education_revisited" value="yes">
+                            Yes</label>
+                        <label class="radio-item"><input type="radio" name="education_revisited" value="no"> No</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Follow-up -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Plan for
+                Next Follow-up</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Next visit scheduled for</label>
+                    <input type="text" class="form-input" name="next_visit">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Additional assessments planned</label>
+                    <textarea class="form-input" name="additional_assessments" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Physiotherapist's Name</label>
+                    <input type="text" class="form-input" name="physiotherapist_name">
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem;">
+            <button type="submit" class="btn-primary-modern btn-lg-modern"
+                style="flex: 1; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">💾 Save
+                Reassessment</button>
+            <a href="/assessment/{{ a.id }}" class="btn-secondary-modern btn-lg-modern">Cancel</a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

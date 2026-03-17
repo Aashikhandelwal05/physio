@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Assessment — {{ patient.name }}{% endblock %}
+
+{% macro show_field(label, value) %}
+{% if value %}<div class="detail-row"><span class="detail-label">{{ label }}</span><span class="detail-value">{{ value
+        }}</span></div>{% endif %}
+{% endmacro %}
+
+{% macro show_radio(label, value) %}
+{% if value %}<div class="detail-row"><span class="detail-label">{{ label }}</span><span class="badge-status">{{ value |
+        replace('_', ' ') | title }}</span></div>{% endif %}
+{% endmacro %}
+
+{% macro show_tags(label, csv) %}
+{% set items = split_csv(csv) %}
+{% if items %}
+<div class="detail-row">
+    <span class="detail-label">{{ label }}</span>
+    <span class="detail-value">
+        {% for item in items %}<span class="tag">{{ item | replace('_', ' ') | title }}</span>{% endfor %}
+    </span>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+
+    <!-- Header -->
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.4rem; font-weight: 700;">Assessment Details</h2>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                {{ patient.name }} &bull; {{ a.assessment_date.strftime('%d %b %Y, %I:%M %p') }}
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="/assessment/{{ a.id }}/whatsapp" target="_blank"
+                class="btn-success-modern btn-sm-modern"
+                style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);">Send to WhatsApp</a>
+            <a href="/assessment/{{ a.id }}/edit" class="btn-primary-modern btn-sm-modern">Edit</a>
+            <a href="/assessment/{{ a.id }}/reassessment/new" class="btn-success-modern btn-sm-modern">Add
+                Reassessment</a>
+            <a href="/patient/{{ patient.id }}" class="btn-secondary-modern btn-sm-modern">← Back</a>
+        </div>
+    </div>
+
+    <!-- ① Referral -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar">① Referral Information</div>
+        <div class="card-body-modern view-section">
+            {{ show_field("Referring Doctor", a.referring_doctor) }}
+            {{ show_field("History", a.history) }}
+            {{ show_tags("Referral Reasons", a.referral_reasons) }}
+            {{ show_field("Other Reason", a.referral_other) }}
+            {{ show_field("Chief Complaint", a.chief_complaint) }}
+        </div>
+    </div>
+
+    <!-- ② Pain -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar">② Pain Assessment</div>
+        <div class="card-body-modern view-section">
+            {{ show_field("Location", a.pain_location) }}
+            {% if a.pain_intensity is not none %}
+            <div class="detail-row">
+                <span class="detail-label">Intensity</span>
+                <span class="detail-value">
+                    <span
+                        class="pain-badge {% if a.pain_intensity <= 3 %}pain-low{% elif a.pain_intensity <= 6 %}pain-mid{% else %}pain-high{% endif %}">
+                        {{ a.pain_intensity }} / 10
+                    </span>
+                </span>
+            </div>
+            {% endif %}
+            {{ show_field("Quality", a.pain_quality) }}
+            {{ show_field("Aggravating Factors", a.pain_aggravating) }}
+            {{ show_field("Relieving Factors", a.pain_relieving) }}
+            {{ show_field("Duration & Frequency", a.pain_duration) }}
+            {{ show_field("Previous Treatments", a.previous_treatments) }}
+        </div>
+    </div>
+
+    <!-- ③ Medical History -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar">③ Medical History</div>
+        <div class="card-body-modern view-section">
+            {{ show_tags("Conditions", a.medical_conditions) }}
+            {{ show_field("Previous Surgeries", a.previous_surgeries) }}
+            {{ show_field("Medications", a.medications) }}
+            {{ show_field("Other", a.other_medical_history) }}
+        </div>
+    </div>
+
+    <!-- ④ Functional Status -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar">④ Functional Status</div>
+        <div class="card-body-modern view-section">
+            {{ show_radio("Mobility", a.mobility) }}
+            {{ show_radio("ADLs", a.adls) }}
+            {{ show_radio("Work/Leisure", a.work_leisure) }}
+            {{ show_radio("Physical Activity", a.physical_activity) }}
+        </div>
+    </div>
+
+    <!-- ⑤ Physical Exam -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar">⑤ Physical Examination</div>
+        <div class="card-body-modern view-section">
+            {{ show_radio("Posture & Gait", a.posture_gait) }}
+            {{ show_field("Posture Details", a.posture_gait_details) }}
+
+            {% if a.rom_cervical or a.rom_lumbar or a.rom_shoulder or a.rom_hip or a.rom_knee or a.rom_ankle %}
+            <div class="detail-row">
+                <span class="detail-label">ROM Assessment</span>
+                <div class="rom-view-grid">
+                    {% if a.rom_cervical %}<div><strong>Cervical:</strong> {{ a.rom_cervical }}</div>{% endif %}
+                    {% if a.rom_lumbar %}<div><strong>Lumbar:</strong> {{ a.rom_lumbar }}</div>{% endif %}
+                    {% if a.rom_shoulder %}<div><strong>Shoulder:</strong> {{ a.rom_shoulder }}</div>{% endif %}
+                    {% if a.rom_hip %}<div><strong>Hip:</strong> {{ a.rom_hip }}</div>{% endif %}
+                    {% if a.rom_knee %}<div><strong>Knee:</strong> {{ a.rom_knee }}</div>{% endif %}
+                    {% if a.rom_ankle %}<div><strong>Ankle:</strong> {{ a.rom_ankle }}</div>{% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {{ show_field("Strength — Upper Limb", a.strength_upper) }}
+            {{ show_field("Strength — Lower Limb", a.strength_lower) }}
+
+            {{ show_radio("Sensory", a.neuro_sensory) }}
+            {{ show_field("Sensory Details", a.neuro_sensory_details) }}
+            {{ show_radio("Reflexes", a.neuro_reflexes) }}
+            {{ show_field("Reflexes Details", a.neuro_reflexes_details) }}
+            {{ show_radio("Coordination", a.neuro_coordination) }}
+            {{ show_field("Coordination Details", a.neuro_coordination_details) }}
+
+            {{ show_radio("Respiratory", a.respiratory) }}
+            {{ show_field("Respiratory Details", a.respiratory_details) }}
+            {{ show_radio("Swelling", a.swelling) }}
+            {{ show_field("Swelling Location", a.swelling_location) }}
+            {{ show_field("Special Tests", a.special_tests) }}
+        </div>
+    </div>
+
+    <!-- ⑥ Summary & Goals -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar">⑥ Assessment Summary &amp; Goals</div>
+        <div class="card-body-modern view-section">
+            {{ show_field("Diagnosis", a.diagnosis) }}
+            {{ show_field("Problem List", a.problem_list) }}
+            {{ show_field("Impairments", a.impairments) }}
+            {{ show_field("Short-term Goals", a.goals_short_term) }}
+            {{ show_field("Long-term Goals", a.goals_long_term) }}
+        </div>
+    </div>
+
+    <!-- ⑦ Treatment Plan -->
+    <div class="card-modern" style="margin-bottom: 1rem;">
+        <div class="section-bar">⑦ Treatment Plan</div>
+        <div class="card-body-modern view-section">
+            {{ show_tags("Modalities", a.treatment_modalities) }}
+            {{ show_field("Other Modality", a.treatment_other) }}
+            {{ show_radio("Frequency", a.session_frequency) }}
+            {{ show_field("Frequency Other", a.session_frequency_other) }}
+            {{ show_radio("Duration", a.treatment_duration) }}
+            {{ show_field("Duration Other", a.treatment_duration_other) }}
+            {{ show_radio("Education Provided", a.patient_education) }}
+            {{ show_field("Education Details", a.education_details) }}
+            {{ show_field("Physiotherapist", a.physiotherapist_name) }}
+        </div>
+    </div>
+
+    <!-- Reassessments -->
+    <div class="card-modern" style="margin-bottom: 2rem;">
+        <div class="section-bar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Reassessments
+        </div>
+        <div class="card-body-modern">
+            {% if reassessments %}
+            {% for r in reassessments %}
+            <div class="rx-card" style="border-left-color: #f59e0b;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <strong>{{ r.reassessment_date.strftime('%d %b %Y, %I:%M %p') }}</strong>
+                    <div style="display: flex; gap: 0.4rem;">
+                        <a href="/reassessment/{{ r.id }}" class="btn-outline-modern btn-sm-modern">View</a>
+                        <form method="post" action="/reassessment/{{ r.id }}/delete" style="margin:0;"
+                            onsubmit="return confirm('Delete this reassessment?')">
+                            <button class="btn-outline-modern btn-outline-danger btn-sm-modern"
+                                type="submit">Delete</button>
+                        </form>
+                    </div>
+                </div>
+                {% if r.pain_current is not none %}<span class="form-hint">Pain: {{ r.pain_current }}/10</span>{% endif
+                %}
+                {% if r.functionality %}<span class="form-hint" style="margin-left: 1rem;">Functionality: {{
+                    r.functionality | replace('_',' ') | title }}</span>{% endif %}
+            </div>
+            {% endfor %}
+            {% else %}
+            <div style="text-align: center; padding: 1.5rem; color: var(--text-muted);">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;"></div>
+                <p>No reassessments yet</p>
+                <a href="/assessment/{{ a.id }}/reassessment/new" class="btn-success-modern btn-sm-modern">Add First
+                    Reassessment</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Delete Assessment -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <form method="post" action="/assessment/{{ a.id }}/delete"
+            onsubmit="return confirm('⚠️ Delete this entire assessment and all its reassessments?')">
+            <button type="submit" class="btn-outline-modern btn-outline-danger btn-sm-modern">Delete This
+                Assessment</button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

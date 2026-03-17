@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+{% block title %}New Assessment — {{ patient.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.4rem; font-weight: 700;">Physiotherapy Assessment</h2>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+                {{ patient.name }} &bull; {{ patient.phone }}
+                {% if patient.age %} &bull; Age {{ patient.age }}{% endif %}
+                {% if patient.gender %} &bull; {{ patient.gender }}{% endif %}
+            </div>
+        </div>
+        <a href="/patient/{{ patient.id }}" class="btn-secondary-modern">← Back</a>
+    </div>
+
+    <form method="post" action="/patient/{{ patient.id }}/assessment/new">
+
+        <!-- ① Referral Information -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">① Referral Information</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Name of Referring Doctor</label>
+                    <input type="text" class="form-input" name="referring_doctor">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">History of Patient</label>
+                    <textarea class="form-input" name="history" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Reason for Physiotherapy Referral</label>
+                    <div class="checkbox-grid">
+                        <label class="check-item"><input type="checkbox" name="referral_reasons" value="pain">
+                            Pain</label>
+                        <label class="check-item"><input type="checkbox" name="referral_reasons"
+                                value="loss_of_function"> Loss of Function</label>
+                        <label class="check-item"><input type="checkbox" name="referral_reasons"
+                                value="rehab_post_surgery"> Rehabilitation Post Surgery</label>
+                        <label class="check-item"><input type="checkbox" name="referral_reasons" value="neurological">
+                            Neurological Condition</label>
+                        <label class="check-item"><input type="checkbox" name="referral_reasons"
+                                value="musculoskeletal"> Musculoskeletal Issues</label>
+                        <label class="check-item"><input type="checkbox" name="referral_reasons"
+                                value="respiratory_rehab"> Respiratory Rehabilitation</label>
+                    </div>
+                    <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <label class="check-item" style="flex-shrink: 0;"><input type="checkbox" name="referral_reasons"
+                                value="other"> Other:</label>
+                        <input type="text" class="form-input" name="referral_other" placeholder="Specify..."
+                            style="flex: 1;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Chief Complaint</label>
+                    <textarea class="form-input" name="chief_complaint" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ② Pain Assessment -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">② Pain Assessment</div>
+            <div class="card-body-modern">
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Location</label>
+                        <input type="text" class="form-input" name="pain_location">
+                    </div>
+                    <div class="form-group" style="width: 120px;">
+                        <label class="form-label-modern">Intensity (0–10)</label>
+                        <input type="number" class="form-input" name="pain_intensity" min="0" max="10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Quality</label>
+                    <input type="text" class="form-input" name="pain_quality" placeholder="e.g. sharp, dull, throbbing">
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Aggravating Factors</label>
+                        <input type="text" class="form-input" name="pain_aggravating">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Relieving Factors</label>
+                        <input type="text" class="form-input" name="pain_relieving">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Duration &amp; Frequency</label>
+                        <input type="text" class="form-input" name="pain_duration">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Previous Treatment(s)</label>
+                        <input type="text" class="form-input" name="previous_treatments">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ③ Medical History -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">③ Medical History &amp; Co-Morbidities</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <div class="checkbox-grid">
+                        <label class="check-item"><input type="checkbox" name="medical_conditions" value="hypertension">
+                            Hypertension</label>
+                        <label class="check-item"><input type="checkbox" name="medical_conditions" value="diabetes">
+                            Diabetes Mellitus</label>
+                        <label class="check-item"><input type="checkbox" name="medical_conditions"
+                                value="cardiovascular"> Cardiovascular Issues</label>
+                        <label class="check-item"><input type="checkbox" name="medical_conditions" value="respiratory">
+                            Respiratory Conditions</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Previous Surgeries</label>
+                    <input type="text" class="form-input" name="previous_surgeries" placeholder="Specify...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Medication(s)</label>
+                    <input type="text" class="form-input" name="medications">
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Other Relevant Medical History</label>
+                    <textarea class="form-input" name="other_medical_history" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ④ Functional Status -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">④ Functional Status</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Mobility (Walking, Transfers)</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="mobility" value="independent">
+                            Independent</label>
+                        <label class="radio-item"><input type="radio" name="mobility" value="with_assistance"> With
+                            Assistance</label>
+                        <label class="radio-item"><input type="radio" name="mobility" value="dependent">
+                            Dependent</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">ADLs (Activities of Daily Living)</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="adls" value="independent">
+                            Independent</label>
+                        <label class="radio-item"><input type="radio" name="adls" value="some_assistance"> Some
+                            Assistance</label>
+                        <label class="radio-item"><input type="radio" name="adls" value="dependent"> Dependent</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Work / Leisure Activity Level</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="work_leisure" value="sedentary">
+                            Sedentary</label>
+                        <label class="radio-item"><input type="radio" name="work_leisure" value="active"> Active</label>
+                        <label class="radio-item"><input type="radio" name="work_leisure" value="highly_active"> Highly
+                            Active</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Current Physical Activity Level</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="physical_activity" value="low"> Low</label>
+                        <label class="radio-item"><input type="radio" name="physical_activity" value="moderate">
+                            Moderate</label>
+                        <label class="radio-item"><input type="radio" name="physical_activity" value="high">
+                            High</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⑤ Physical Examination -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">⑤ Physical Examination</div>
+            <div class="card-body-modern">
+
+                <!-- Posture & Gait -->
+                <div class="form-group">
+                    <label class="form-label-modern">Posture and Gait</label>
+                    <div class="radio-group" style="margin-bottom: 0.5rem;">
+                        <label class="radio-item"><input type="radio" name="posture_gait" value="normal"> Normal</label>
+                        <label class="radio-item"><input type="radio" name="posture_gait" value="abnormal">
+                            Abnormal</label>
+                    </div>
+                    <input type="text" class="form-input" name="posture_gait_details"
+                        placeholder="Specify if abnormal...">
+                </div>
+
+                <!-- ROM -->
+                <div class="form-group">
+                    <label class="form-label-modern">Range of Motion (ROM) Assessment</label>
+                    <div class="rom-grid">
+                        <div><label class="form-hint">Cervical Spine</label><input type="text" class="form-input"
+                                name="rom_cervical"></div>
+                        <div><label class="form-hint">Lumbar Spine</label><input type="text" class="form-input"
+                                name="rom_lumbar"></div>
+                        <div><label class="form-hint">Shoulder</label><input type="text" class="form-input"
+                                name="rom_shoulder"></div>
+                        <div><label class="form-hint">Hip</label><input type="text" class="form-input" name="rom_hip">
+                        </div>
+                        <div><label class="form-hint">Knee</label><input type="text" class="form-input" name="rom_knee">
+                        </div>
+                        <div><label class="form-hint">Ankle</label><input type="text" class="form-input"
+                                name="rom_ankle"></div>
+                    </div>
+                </div>
+
+                <!-- Muscle Strength -->
+                <div class="form-group">
+                    <label class="form-label-modern">Muscle Strength Testing (0–5 Scale)</label>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;"><label class="form-hint">Upper Limb</label><input
+                                type="text" class="form-input" name="strength_upper"></div>
+                        <div class="form-group" style="flex: 1;"><label class="form-hint">Lower Limb</label><input
+                                type="text" class="form-input" name="strength_lower"></div>
+                    </div>
+                </div>
+
+                <!-- Neurological -->
+                <div class="form-group">
+                    <label class="form-label-modern">Neurological Assessment</label>
+                    <div class="neuro-row">
+                        <div>
+                            <label class="form-hint">Sensory</label>
+                            <div class="radio-group-sm">
+                                <label class="radio-item"><input type="radio" name="neuro_sensory" value="normal">
+                                    Normal</label>
+                                <label class="radio-item"><input type="radio" name="neuro_sensory" value="abnormal">
+                                    Abnormal</label>
+                            </div>
+                            <input type="text" class="form-input" name="neuro_sensory_details" placeholder="Specify..."
+                                style="margin-top: 0.3rem;">
+                        </div>
+                        <div>
+                            <label class="form-hint">Reflexes</label>
+                            <div class="radio-group-sm">
+                                <label class="radio-item"><input type="radio" name="neuro_reflexes" value="normal">
+                                    Normal</label>
+                                <label class="radio-item"><input type="radio" name="neuro_reflexes" value="abnormal">
+                                    Abnormal</label>
+                            </div>
+                            <input type="text" class="form-input" name="neuro_reflexes_details" placeholder="Specify..."
+                                style="margin-top: 0.3rem;">
+                        </div>
+                        <div>
+                            <label class="form-hint">Coordination</label>
+                            <div class="radio-group-sm">
+                                <label class="radio-item"><input type="radio" name="neuro_coordination" value="normal">
+                                    Normal</label>
+                                <label class="radio-item"><input type="radio" name="neuro_coordination"
+                                        value="abnormal"> Abnormal</label>
+                            </div>
+                            <input type="text" class="form-input" name="neuro_coordination_details"
+                                placeholder="Specify..." style="margin-top: 0.3rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Respiratory -->
+                <div class="form-group">
+                    <label class="form-label-modern">Respiratory Assessment</label>
+                    <div class="radio-group" style="margin-bottom: 0.5rem;">
+                        <label class="radio-item"><input type="radio" name="respiratory" value="normal"> Normal</label>
+                        <label class="radio-item"><input type="radio" name="respiratory" value="abnormal">
+                            Abnormal</label>
+                    </div>
+                    <input type="text" class="form-input" name="respiratory_details"
+                        placeholder="Specify if abnormal...">
+                </div>
+
+                <!-- Swelling -->
+                <div class="form-group">
+                    <label class="form-label-modern">Swelling / Edema</label>
+                    <div class="radio-group" style="margin-bottom: 0.5rem;">
+                        <label class="radio-item"><input type="radio" name="swelling" value="present"> Present</label>
+                        <label class="radio-item"><input type="radio" name="swelling" value="not_present"> Not
+                            Present</label>
+                    </div>
+                    <input type="text" class="form-input" name="swelling_location" placeholder="Location...">
+                </div>
+
+                <!-- Special Tests -->
+                <div class="form-group">
+                    <label class="form-label-modern">Special Tests</label>
+                    <textarea class="form-input" name="special_tests" rows="2"
+                        placeholder="List any special orthopedic or neurological tests performed..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⑥ Assessment Summary & Goals -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">⑥ Assessment Summary &amp; Goals</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Diagnosis</label>
+                    <textarea class="form-input" name="diagnosis" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Problem List</label>
+                    <textarea class="form-input" name="problem_list" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label-modern">Impairments Identified</label>
+                    <textarea class="form-input" name="impairments" rows="2"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Short-term Goals</label>
+                        <textarea class="form-input" name="goals_short_term" rows="2"></textarea>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Long-term Goals</label>
+                        <textarea class="form-input" name="goals_long_term" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⑦ Treatment Plan -->
+        <div class="card-modern" style="margin-bottom: 1.25rem;">
+            <div class="section-bar">⑦ Physiotherapy Plan of Care</div>
+            <div class="card-body-modern">
+                <div class="form-group">
+                    <label class="form-label-modern">Treatment Modalities</label>
+                    <div class="checkbox-grid">
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="manual_therapy"> Manual Therapy</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="exercise_therapy"> Exercise Therapy</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities" value="heat_ice">
+                            Heat / Ice Therapy</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="electrical_stimulation"> Electrical Stimulation</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities" value="taping">
+                            Taping</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="posture_education"> Posture Education</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="balance_coordination"> Balance &amp; Coordination</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="neuromuscular"> Neuromuscular Re-education</label>
+                        <label class="check-item"><input type="checkbox" name="treatment_modalities"
+                                value="gait_training"> Gait Training</label>
+                    </div>
+                    <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <label class="check-item" style="flex-shrink: 0;"><input type="checkbox"
+                                name="treatment_modalities" value="other"> Other:</label>
+                        <input type="text" class="form-input" name="treatment_other" placeholder="Specify..."
+                            style="flex: 1;">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Frequency of Sessions</label>
+                        <div class="radio-group">
+                            <label class="radio-item"><input type="radio" name="session_frequency" value="daily">
+                                Daily</label>
+                            <label class="radio-item"><input type="radio" name="session_frequency" value="2_3_per_week">
+                                2–3/week</label>
+                            <label class="radio-item"><input type="radio" name="session_frequency" value="weekly">
+                                Weekly</label>
+                            <label class="radio-item"><input type="radio" name="session_frequency" value="other">
+                                Other</label>
+                        </div>
+                        <input type="text" class="form-input" name="session_frequency_other" placeholder="Specify..."
+                            style="margin-top: 0.3rem;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label-modern">Estimated Duration</label>
+                        <div class="radio-group">
+                            <label class="radio-item"><input type="radio" name="treatment_duration" value="1_2_weeks">
+                                1–2 weeks</label>
+                            <label class="radio-item"><input type="radio" name="treatment_duration" value="3_4_weeks">
+                                3–4 weeks</label>
+                            <label class="radio-item"><input type="radio" name="treatment_duration" value="6_weeks"> 6
+                                weeks</label>
+                            <label class="radio-item"><input type="radio" name="treatment_duration" value="other">
+                                Other</label>
+                        </div>
+                        <input type="text" class="form-input" name="treatment_duration_other" placeholder="Specify..."
+                            style="margin-top: 0.3rem;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-modern">Patient Education Provided</label>
+                    <div class="radio-group" style="margin-bottom: 0.5rem;">
+                        <label class="radio-item"><input type="radio" name="patient_education" value="yes"> Yes</label>
+                        <label class="radio-item"><input type="radio" name="patient_education" value="no"> No</label>
+                    </div>
+                    <textarea class="form-input" name="education_details" rows="2"
+                        placeholder="If Yes, describe..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-modern">Physiotherapist's Name</label>
+                    <input type="text" class="form-input" name="physiotherapist_name">
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem;">
+            <button type="submit" class="btn-primary-modern btn-lg-modern" style="flex: 1;">Save Assessment</button>
+            <a href="/patient/{{ patient.id }}" class="btn-secondary-modern btn-lg-modern">Cancel</a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

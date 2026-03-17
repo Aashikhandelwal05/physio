@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}{{ patient.name }} — Balaji Neurophysiotherapy{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+
+    {% if success_message %}
+    <div class="alert alert-success">
+        {{ success_message }}
+        <button class="alert-close">&times;</button>
+    </div>
+    {% endif %}
+
+    <!-- Patient Header -->
+    <div class="card mb-md" style="border: none; box-shadow: var(--shadow-md);">
+        <div class="card-body" style="padding: 1.25rem 1.5rem;">
+            <div class="flex items-center gap-md">
+                <div class="patient-avatar-lg">{{ patient.name[0] | upper }}</div>
+                <div class="flex-1">
+                    <h2 style="font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.15rem;">
+                        {{ patient.name }}
+                    </h2>
+                    <div class="text-sm text-muted flex gap-sm" style="flex-wrap: wrap;">
+                        <span>{{ patient.phone }}</span>
+                        {% if patient.age %}<span>· Age {{ patient.age }}</span>{% endif %}
+                        {% if patient.gender %}<span>· {{ patient.gender }}</span>{% endif %}
+                    </div>
+                    {% if patient.notes %}
+                    <div class="text-sm text-faint mt-sm">{{ patient.notes }}</div>
+                    {% endif %}
+                </div>
+                <a href="/patient/{{ patient.id }}/edit" class="btn btn-ghost btn-sm shrink-0">Edit</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Assessment (Private — standalone section) -->
+    <div class="card mb-md" style="border: none; box-shadow: var(--shadow-md);">
+        <div class="section-bar" style="background: linear-gradient(135deg, #8b5e3c 0%, #6b4226 100%);">
+            Doctor Assessment
+            <span style="font-size: 0.75rem; opacity: 0.75; margin-left: 0.5rem;">Private — not sent to patient</span>
+        </div>
+        <div class="card-body" style="padding: 1.25rem 1.5rem;">
+            {% if patient.doctor_assessment %}
+            <div style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.7; margin-bottom: 1rem; color: var(--text-secondary);">{{ patient.doctor_assessment }}</div>
+            {% endif %}
+            <form method="post" action="/patient/{{ patient.id }}/doctor-assessment">
+                <textarea class="form-input" name="doctor_assessment" rows="3"
+                    placeholder="Private clinical notes, internal observations, differential diagnosis...">{{ patient.doctor_assessment or '' }}</textarea>
+                <button type="submit" class="btn btn-primary btn-sm" style="margin-top: 0.75rem;">Save Notes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="flex gap-md mb-lg">
+        <a href="/patient/{{ patient.id }}/assessment/new" class="btn btn-primary flex-1"
+            style="justify-content: center;">
+            + New Assessment
+        </a>
+        <a href="/" class="btn btn-ghost">Search</a>
+    </div>
+
+    <!-- Assessments -->
+    <div class="flex items-center justify-between mb-sm" style="padding: 0 0.2rem;">
+        <span class="fw-700" style="font-size: 1rem;">Assessments</span>
+        <span class="stat-pill">{{ assessments | length }}</span>
+    </div>
+
+    {% if assessments %}
+    {% for a in assessments %}
+    <div class="assessment-card">
+        <div class="flex justify-between items-center" style="flex-wrap: wrap; gap: 0.5rem;">
+            <div style="min-width: 0;">
+                <div class="fw-600" style="font-size: 0.9rem;">
+                    {{ a.assessment_date.strftime('%d %b %Y, %I:%M %p') }}
+                </div>
+                {% if a.diagnosis %}
+                <div class="text-sm text-muted mt-sm" style="margin-top: 0.15rem;">
+                    <strong>Dx:</strong> {{ a.diagnosis[:100] }}{% if a.diagnosis|length > 100 %}…{% endif %}
+                </div>
+                {% endif %}
+                {% if a.chief_complaint %}
+                <div class="text-sm text-muted">
+                    <strong>CC:</strong> {{ a.chief_complaint[:80] }}{% if a.chief_complaint|length > 80 %}…{% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="flex gap-sm shrink-0">
+                <a href="/assessment/{{ a.id }}/whatsapp" target="_blank" class="btn btn-sm"
+                    style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: #fff; border: none;">WhatsApp</a>
+                <a href="/assessment/{{ a.id }}" class="btn btn-outline btn-sm">View</a>
+                <a href="/assessment/{{ a.id }}/edit" class="btn btn-ghost btn-sm">Edit</a>
+                <a href="/assessment/{{ a.id }}/reassessment/new" class="btn btn-sm"
+                    style="border: 1.5px solid var(--warning); color: var(--warning-dark);">+ Follow-up</a>
+            </div>
+        </div>
+
+        {% if a.reassessments %}
+        <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-light);">
+            <span class="text-sm text-faint"
+                style="text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.72rem;">
+                {{ a.reassessments|length }} reassessment{{ 's' if a.reassessments|length > 1 else '' }}
+            </span>
+        </div>
+        {% endif %}
+
+        {% if a.physiotherapist_name %}
+        <div class="text-sm text-faint" style="margin-top: 0.2rem; font-size: 0.75rem;">
+            Physio: {{ a.physiotherapist_name }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <p class="mb-sm">No assessments yet</p>
+        <p class="text-sm text-faint">Click <strong>"New Assessment"</strong> above to get started.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
